@@ -3,12 +3,12 @@
     <div class="container">
       <a class="navbar-brand fw-bold" href="#hem">
         <i class="bi bi-shop me-2"></i>
-        Gamla Stan Pizzeria
+        {{ restaurantInfo.name }}
       </a>
 
       <div class="navbar-phone d-none d-lg-block">
         <i class="bi bi-telephone-fill me-2"></i>
-        <span class="fw-bold">08-555 123 45</span>
+        <span class="fw-bold">{{ restaurantInfo.contact.phone.number }}</span>
       </div>
 
       <button
@@ -35,9 +35,9 @@
             <a class="nav-link" href="#kontakt">Kontakt</a>
           </li>
           <li class="nav-item d-lg-none">
-            <a class="nav-link" href="tel:08555123445">
+            <a class="nav-link" :href="restaurantInfo.contact.phone.href">
               <i class="bi bi-telephone-fill me-1"></i>
-              08-555 123 45
+              {{ restaurantInfo.contact.phone.number }}
             </a>
           </li>
         </ul>
@@ -48,6 +48,10 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useRestaurantStore } from '../stores/restaurantStore'
+
+const restaurantStore = useRestaurantStore()
+const { restaurantInfo } = restaurantStore
 
 onMounted(() => {
   // Smooth scrolling for navigation links
