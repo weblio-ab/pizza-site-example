@@ -3,7 +3,6 @@
     <HeaderComponent />
     <HeroSection />
     <MenuSection />
-    <AboutSection />
     <ContactSection />
     <FooterComponent />
   </div>
@@ -13,7 +12,6 @@
 import HeaderComponent from './components/HeaderComponent.vue'
 import HeroSection from './components/HeroSection.vue'
 import MenuSection from './components/MenuSection.vue'
-import AboutSection from './components/AboutSection.vue'
 import ContactSection from './components/ContactSection.vue'
 import FooterComponent from './components/FooterComponent.vue'
 </script>

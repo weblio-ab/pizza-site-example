@@ -36,7 +36,6 @@
             <ul class="list-unstyled footer-links">
               <li><a href="#hem">Hem</a></li>
               <li><a href="#meny">Meny</a></li>
-              <li><a href="#om-oss">Om Oss</a></li>
               <li><a href="#kontakt">Kontakt</a></li>
             </ul>
           </div>

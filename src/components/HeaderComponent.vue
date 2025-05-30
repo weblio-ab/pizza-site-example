@@ -32,9 +32,6 @@
             <a class="nav-link" href="#meny">Meny</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#om-oss">Om Oss</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" href="#kontakt">Kontakt</a>
           </li>
           <li class="nav-item d-lg-none">

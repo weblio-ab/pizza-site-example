@@ -22,14 +22,6 @@ Denna webbplats representerar Gamla Stan Pizzeria, en traditionell svensk pizzer
 - ✅ Tillgänglighetsanpassad (WCAG 2.1 AA)
 - ✅ Cross-browser kompatibilitet
 
-### Innehållssektioner
-1. **Header** - Logotyp, navigation, telefonnummer
-2. **Hero** - Välkomstmeddelande, öppettider, call-to-action
-3. **Meny** - Kategoriserad pizzameny med priser i SEK
-4. **Om Oss** - Företagshistoria, värderingar, team
-5. **Kontakt** - Kontaktinfo, öppettider, kartplats
-6. **Footer** - Komplett information, nyhetsbrev, sociala medier
-
 ## 🛠 Teknisk Stack
 
 - **Framework**: Vue 3 med Composition API
