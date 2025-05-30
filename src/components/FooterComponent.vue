@@ -3,45 +3,33 @@
     <div class="container">
       <!-- Main Footer Content -->
       <div class="row py-5">
-        <div class="col-lg-4 mb-4">
+        <div class="col-lg-5 mb-4">
           <div class="footer-section">
             <h5 class="fw-bold mb-3">
               <i class="bi bi-shop me-2"></i>
-              Gamla Stan Pizzeria
+              {{ restaurantInfo.name }}
             </h5>
             <p class="mb-3">
               Sedan 1985 har vi serverat äkta pizza med svensk touch i hjärtat av Stockholm.
               Välkommen till vår mysiga pub-miljö där alla känner sig hemma.
             </p>
             <div class="social-links">
-              <a href="#" class="social-icon me-3" title="Facebook">
-                <i class="bi bi-facebook"></i>
-              </a>
-              <a href="#" class="social-icon me-3" title="Instagram">
-                <i class="bi bi-instagram"></i>
-              </a>
-              <a href="#" class="social-icon me-3" title="Google">
-                <i class="bi bi-google"></i>
-              </a>
-              <a href="#" class="social-icon" title="TripAdvisor">
-                <i class="bi bi-geo-alt"></i>
+              <a
+                v-for="social in restaurantInfo.socialMedia"
+                :key="social.name"
+                :href="social.url"
+                class="social-icon me-3"
+                :title="social.name"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="bi" :class="social.icon"></i>
               </a>
             </div>
           </div>
         </div>
 
-        <div class="col-lg-2 col-md-6 mb-4">
-          <div class="footer-section">
-            <h6 class="fw-bold mb-3">Navigation</h6>
-            <ul class="list-unstyled footer-links">
-              <li><a href="#hem">Hem</a></li>
-              <li><a href="#meny">Meny</a></li>
-              <li><a href="#kontakt">Kontakt</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-4">
+        <div class="col-lg-4 mb-4">
           <div class="footer-section">
             <h6 class="fw-bold mb-3">Kontaktinfo</h6>
             <div class="contact-info">
