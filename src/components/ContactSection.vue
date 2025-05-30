@@ -99,23 +99,7 @@
       <!-- Quick Actions -->
       <div class="row mt-5">
         <div class="col-12">
-          <div class="quick-actions text-center">
-            <h4 class="mb-4">Snabba åtgärder</h4>
-            <div class="action-buttons">
-              <a :href="restaurantInfo.contact.phone.href" class="btn btn-warning btn-lg me-3 mb-3">
-                <i class="bi bi-telephone-fill me-2"></i>
-                Ring & Beställ
-              </a>
-              <a :href="`mailto:${restaurantInfo.contact.email.address}`" class="btn btn-outline-light btn-lg me-3 mb-3">
-                <i class="bi bi-envelope me-2"></i>
-                Skicka E-post
-              </a>
-              <a href="#meny" class="btn btn-outline-light btn-lg mb-3">
-                <i class="bi bi-menu-button-wide me-2"></i>
-                Se Meny
-              </a>
-            </div>
-          </div>
+          <QuickActions />
         </div>
       </div>
     </div>
@@ -125,6 +109,7 @@
 <script setup lang="ts">
 import OpeningHours from './OpeningHours.vue'
 import MapSection from './MapSection.vue'
+import QuickActions from './QuickActions.vue'
 import { useRestaurantStore } from '../stores/restaurantStore'
 
 const restaurantStore = useRestaurantStore()
@@ -195,19 +180,6 @@ const { restaurantInfo } = restaurantStore
   font-size: 1.25rem;
 }
 
-.quick-actions {
-  background: rgba(255,255,255,0.1);
-  padding: 2rem;
-  border-radius: 20px;
-}
-
-.action-buttons {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
 @media (max-width: 768px) {
   .contact-item {
     flex-direction: column;
@@ -220,16 +192,6 @@ const { restaurantInfo } = restaurantStore
 
   .social-links {
     justify-content: center;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .action-buttons .btn {
-    width: 100%;
-    max-width: 300px;
   }
 }
 
