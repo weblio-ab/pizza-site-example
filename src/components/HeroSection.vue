@@ -6,18 +6,17 @@
         <div class="col-lg-8 mx-auto text-center text-white">
           <h1 class="display-2 fw-bold mb-4">
             Välkommen till<br>
-            <span class="text-warning">Gamla Stan Pizzeria</span>
+            <span class="text-warning">{{ restaurantInfo.name }}</span>
           </h1>
           <p class="lead mb-4 fs-4">
-            Upplev äkta svensk pizzatradition i hjärtat av Stockholm.<br>
-            En mysig pub-atmosfär där familjer samlas över utsökt pizza.
+            {{ restaurantInfo.description }}
           </p>
           <div class="hero-buttons mb-5">
             <a href="#meny" class="btn btn-primary btn-lg me-3 mb-3">
               <i class="bi bi-menu-button-wide me-2"></i>
               Se vår meny
             </a>
-            <a href="tel:08555123445" class="btn btn-outline-light btn-lg mb-3">
+            <a :href="restaurantInfo.contact.phone.href" class="btn btn-outline-light btn-lg mb-3">
               <i class="bi bi-telephone-fill me-2"></i>
               Beställ nu
             </a>
@@ -56,14 +55,17 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useOpeningHoursStore } from '../stores/openingHoursStore'
+import { useRestaurantStore } from '../stores/restaurantStore'
 
 const openingHoursStore = useOpeningHoursStore()
+const restaurantStore = useRestaurantStore()
 
 // Use storeToRefs only for reactive computed properties
 const { openingStatus } = storeToRefs(openingHoursStore)
 
 // Static data and methods can be destructured normally
 const { weeklyHours, formatTimeRange } = openingHoursStore
+const { restaurantInfo } = restaurantStore
 
 // Group hours for display
 const groupedHours = computed(() => {

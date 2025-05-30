@@ -26,9 +26,9 @@
               <div class="contact-details">
                 <h5>Adress</h5>
                 <p>
-                  Västerlånggatan 15<br>
-                  111 29 Stockholm<br>
-                  <small class="text-warning">Mitt i Gamla Stan</small>
+                  {{ restaurantInfo.contact.address.street }}<br>
+                  {{ restaurantInfo.contact.address.postalCode }} {{ restaurantInfo.contact.address.city }}<br>
+                  <small class="text-warning">Mitt i {{ restaurantInfo.contact.address.district }}</small>
                 </p>
               </div>
             </div>
@@ -40,10 +40,10 @@
               <div class="contact-details">
                 <h5>Telefon</h5>
                 <p>
-                  <a href="tel:08555123445" class="text-warning text-decoration-none fw-bold">
-                    08-555 123 45
+                  <a :href="restaurantInfo.contact.phone.href" class="text-warning text-decoration-none fw-bold">
+                    {{ restaurantInfo.contact.phone.number }}
                   </a><br>
-                  <small>För beställningar och bordsbokning</small>
+                  <small>{{ restaurantInfo.contact.phone.description }}</small>
                 </p>
               </div>
             </div>
@@ -55,10 +55,10 @@
               <div class="contact-details">
                 <h5>E-post</h5>
                 <p>
-                  <a href="mailto:info@gamlastanpizzeria.se" class="text-warning text-decoration-none">
-                    info@gamlastanpizzeria.se
+                  <a :href="`mailto:${restaurantInfo.contact.email.address}`" class="text-warning text-decoration-none">
+                    {{ restaurantInfo.contact.email.address }}
                   </a><br>
-                  <small>Vi svarar inom 24 timmar</small>
+                  <small>{{ restaurantInfo.contact.email.description }}</small>
                 </p>
               </div>
             </div>
@@ -67,17 +67,16 @@
             <div class="social-media mt-4">
               <h5 class="mb-3">Följ oss</h5>
               <div class="social-links">
-                <a href="#" class="social-link me-3">
-                  <i class="bi bi-facebook"></i>
-                  <span>Facebook</span>
-                </a>
-                <a href="#" class="social-link me-3">
-                  <i class="bi bi-instagram"></i>
-                  <span>Instagram</span>
-                </a>
-                <a href="#" class="social-link">
-                  <i class="bi bi-google"></i>
-                  <span>Google</span>
+                <a
+                  v-for="social in restaurantInfo.socialMedia"
+                  :key="social.name"
+                  :href="social.url"
+                  class="social-link me-3"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i :class="['bi', social.icon]"></i>
+                  <span>{{ social.name }}</span>
                 </a>
               </div>
             </div>
@@ -142,11 +141,11 @@
           <div class="quick-actions text-center">
             <h4 class="mb-4">Snabba åtgärder</h4>
             <div class="action-buttons">
-              <a href="tel:08555123445" class="btn btn-warning btn-lg me-3 mb-3">
+              <a :href="restaurantInfo.contact.phone.href" class="btn btn-warning btn-lg me-3 mb-3">
                 <i class="bi bi-telephone-fill me-2"></i>
                 Ring & Beställ
               </a>
-              <a href="mailto:info@gamlastanpizzeria.se" class="btn btn-outline-light btn-lg me-3 mb-3">
+              <a :href="`mailto:${restaurantInfo.contact.email.address}`" class="btn btn-outline-light btn-lg me-3 mb-3">
                 <i class="bi bi-envelope me-2"></i>
                 Skicka E-post
               </a>
@@ -164,6 +163,10 @@
 
 <script setup lang="ts">
 import OpeningHours from './OpeningHours.vue'
+import { useRestaurantStore } from '../stores/restaurantStore'
+
+const restaurantStore = useRestaurantStore()
+const { restaurantInfo } = restaurantStore
 </script>
 
 <style scoped>

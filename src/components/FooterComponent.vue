@@ -47,19 +47,19 @@
             <div class="contact-info">
               <p class="mb-2">
                 <i class="bi bi-geo-alt me-2"></i>
-                Västerlånggatan 15<br>
-                111 29 Stockholm
+                {{ restaurantInfo.contact.address.street }}<br>
+                {{ restaurantInfo.contact.address.postalCode }} {{ restaurantInfo.contact.address.city }}
               </p>
               <p class="mb-2">
                 <i class="bi bi-telephone me-2"></i>
-                <a href="tel:08555123445" class="text-white text-decoration-none">
-                  08-555 123 45
+                <a :href="restaurantInfo.contact.phone.href" class="text-white text-decoration-none">
+                  {{ restaurantInfo.contact.phone.number }}
                 </a>
               </p>
               <p class="mb-2">
                 <i class="bi bi-envelope me-2"></i>
-                <a href="mailto:info@gamlastanpizzeria.se" class="text-white text-decoration-none">
-                  info@gamlastanpizzeria.se
+                <a :href="getEmailLink()" class="text-white text-decoration-none">
+                  {{ restaurantInfo.contact.email.address }}
                 </a>
               </p>
             </div>
@@ -118,14 +118,17 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useOpeningHoursStore } from '../stores/openingHoursStore'
+import { useRestaurantStore } from '../stores/restaurantStore'
 
 const openingHoursStore = useOpeningHoursStore()
+const restaurantStore = useRestaurantStore()
 
 // Use storeToRefs only for reactive computed properties
 const { openingStatus } = storeToRefs(openingHoursStore)
 
 // Static data and methods can be destructured normally
 const { weeklyHours, formatTimeRange } = openingHoursStore
+const { restaurantInfo, getEmailLink } = restaurantStore
 
 const currentYear = new Date().getFullYear()
 const showBackToTop = ref(false)
