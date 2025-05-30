@@ -84,34 +84,6 @@
         </div>
       </div>
 
-      <!-- Newsletter Section -->
-      <div class="row py-4 border-top border-secondary">
-        <div class="col-lg-8 mx-auto text-center">
-          <h5 class="mb-3">Få våra senaste nyheter</h5>
-          <p class="mb-3">
-            Prenumerera på vårt nyhetsbrev för specialerbjudanden och nya pizzor på menyn.
-          </p>
-          <form class="newsletter-form d-flex justify-content-center" @submit.prevent="subscribeNewsletter">
-            <div class="input-group" style="max-width: 400px;">
-              <input
-                type="email"
-                class="form-control"
-                placeholder="Din e-postadress"
-                v-model="email"
-                required
-              >
-              <button class="btn btn-warning" type="submit">
-                <i class="bi bi-envelope"></i>
-                Prenumerera
-              </button>
-            </div>
-          </form>
-          <p class="small mt-2 text-light">
-            Vi respekterar din integritet. Avregistrera dig när som helst.
-          </p>
-        </div>
-      </div>
-
       <!-- Bottom Footer -->
       <div class="row py-3 border-top border-secondary">
         <div class="col-md-6 text-center text-md-start">
