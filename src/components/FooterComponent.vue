@@ -71,18 +71,14 @@
           <div class="footer-section">
             <h6 class="fw-bold mb-3">Öppettider</h6>
             <div class="opening-hours-summary">
-              <p class="mb-1">
-                <strong>Mån-Tors:</strong> 11:00-22:00
-              </p>
-              <p class="mb-1">
-                <strong>Fre-Lör:</strong> 11:00-23:00
-              </p>
-              <p class="mb-3">
-                <strong>Söndag:</strong> 12:00-21:00
-              </p>
-              <div class="status-badge" :class="isOpen ? 'open' : 'closed'">
-                <i class="bi" :class="isOpen ? 'bi-check-circle' : 'bi-x-circle'"></i>
-                {{ isOpen ? 'Öppet nu' : 'Stängt nu' }}
+              <div v-for="dayGroup in groupedHours" :key="dayGroup.label">
+                <p class="mb-1">
+                  <strong>{{ dayGroup.label }}:</strong> {{ dayGroup.hours }}
+                </p>
+              </div>
+              <div class="status-badge mt-3" :class="openingStatus.isOpen ? 'open' : 'closed'">
+                <i class="bi" :class="openingStatus.isOpen ? 'bi-check-circle' : 'bi-x-circle'"></i>
+                {{ openingStatus.statusText }}
               </div>
             </div>
           </div>
@@ -148,33 +144,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useOpeningHoursStore } from '../stores/openingHoursStore'
+
+const openingHoursStore = useOpeningHoursStore()
+
+// Use storeToRefs to maintain reactivity for state and getters
+const { weeklyHours, openingStatus } = storeToRefs(openingHoursStore)
+
+// Actions can be destructured normally since they don't need reactivity
+const { startTimeUpdater, formatTimeRange } = openingHoursStore
 
 const email = ref('')
-const isOpen = ref(false)
 const currentYear = new Date().getFullYear()
 const showBackToTop = ref(false)
 
-const checkIfOpen = () => {
-  const now = new Date()
-  const currentDay = now.getDay()
-  const currentTime = now.getHours() * 100 + now.getMinutes()
+// Group hours for display
+const groupedHours = computed(() => {
+  const hours = weeklyHours.value
+  const mondayThursday = hours.slice(0, 4) // Monday-Thursday
+  const fridaySaturday = hours.slice(4, 6) // Friday-Saturday
+  const sunday = hours[6] // Sunday
 
-  let openTime, closeTime
-
-  if (currentDay >= 1 && currentDay <= 4) { // Monday-Thursday
-    openTime = 1100
-    closeTime = 2200
-  } else if (currentDay === 5 || currentDay === 6) { // Friday-Saturday
-    openTime = 1100
-    closeTime = 2300
-  } else { // Sunday
-    openTime = 1200
-    closeTime = 2100
-  }
-
-  isOpen.value = currentTime >= openTime && currentTime <= closeTime
-}
+  return [
+    {
+      label: 'Mån-Tors',
+      hours: formatTimeRange(mondayThursday[0].openTime, mondayThursday[0].closeTime)
+    },
+    {
+      label: 'Fre-Lör',
+      hours: formatTimeRange(fridaySaturday[0].openTime, fridaySaturday[0].closeTime)
+    },
+    {
+      label: 'Söndag',
+      hours: formatTimeRange(sunday.openTime, sunday.closeTime)
+    }
+  ]
+})
 
 const subscribeNewsletter = () => {
   if (email.value) {
@@ -194,14 +201,21 @@ const handleScroll = () => {
   showBackToTop.value = window.scrollY > 300
 }
 
+let timeUpdateInterval: ReturnType<typeof setInterval> | undefined
+
 onMounted(() => {
-  checkIfOpen()
-  setInterval(checkIfOpen, 60000)
+  // Start the time updater when component mounts
+  timeUpdateInterval = startTimeUpdater()
 
   window.addEventListener('scroll', handleScroll)
 })
 
 onUnmounted(() => {
+  // Clean up the interval when component unmounts
+  if (timeUpdateInterval) {
+    clearInterval(timeUpdateInterval)
+  }
+
   window.removeEventListener('scroll', handleScroll)
 })
 </script>

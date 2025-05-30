@@ -30,19 +30,18 @@
             </h5>
             <div class="row text-start">
               <div class="col-md-6">
-                <p class="mb-1"><strong>Måndag-Torsdag:</strong></p>
-                <p class="mb-3">11:00-22:00</p>
-                <p class="mb-1"><strong>Fredag-Lördag:</strong></p>
-                <p class="mb-3">11:00-23:00</p>
+                <div v-for="dayGroup in groupedHours" :key="dayGroup.label">
+                  <p class="mb-1"><strong>{{ dayGroup.label }}:</strong></p>
+                  <p class="mb-3">{{ dayGroup.hours }}</p>
+                </div>
               </div>
               <div class="col-md-6">
-                <p class="mb-1"><strong>Söndag:</strong></p>
-                <p class="mb-3">12:00-21:00</p>
                 <div class="current-status mt-3">
-                  <span class="badge" :class="isOpen ? 'bg-success' : 'bg-danger'">
-                    <i class="bi" :class="isOpen ? 'bi-check-circle' : 'bi-x-circle'"></i>
-                    {{ isOpen ? 'Öppet nu' : 'Stängt nu' }}
+                  <span class="badge" :class="openingStatus.isOpen ? 'bg-success' : 'bg-danger'">
+                    <i class="bi" :class="openingStatus.isOpen ? 'bi-check-circle' : 'bi-x-circle'"></i>
+                    {{ openingStatus.statusText }}
                   </span>
+                  <p class="small mt-2 mb-0">{{ openingStatus.nextStatusMessage }}</p>
                 </div>
               </div>
             </div>
@@ -54,35 +53,53 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useOpeningHoursStore } from '../stores/openingHoursStore'
 
-const isOpen = ref(false)
+const openingHoursStore = useOpeningHoursStore()
 
-const checkIfOpen = () => {
-  const now = new Date()
-  const currentDay = now.getDay() // 0 = Sunday, 1 = Monday, etc.
-  const currentTime = now.getHours() * 100 + now.getMinutes()
+// Use storeToRefs to maintain reactivity for state and getters
+const { weeklyHours, openingStatus } = storeToRefs(openingHoursStore)
 
-  let openTime, closeTime
+// Actions can be destructured normally since they don't need reactivity
+const { startTimeUpdater, formatTimeRange } = openingHoursStore
 
-  if (currentDay >= 1 && currentDay <= 4) { // Monday-Thursday
-    openTime = 1100
-    closeTime = 2200
-  } else if (currentDay === 5 || currentDay === 6) { // Friday-Saturday
-    openTime = 1100
-    closeTime = 2300
-  } else { // Sunday
-    openTime = 1200
-    closeTime = 2100
-  }
+// Group hours for display
+const groupedHours = computed(() => {
+  const hours = weeklyHours.value
+  const mondayThursday = hours.slice(0, 4) // Monday-Thursday
+  const fridaySaturday = hours.slice(4, 6) // Friday-Saturday
+  const sunday = hours[6] // Sunday
 
-  isOpen.value = currentTime >= openTime && currentTime <= closeTime
-}
+  return [
+    {
+      label: 'Måndag-Torsdag',
+      hours: formatTimeRange(mondayThursday[0].openTime, mondayThursday[0].closeTime)
+    },
+    {
+      label: 'Fredag-Lördag',
+      hours: formatTimeRange(fridaySaturday[0].openTime, fridaySaturday[0].closeTime)
+    },
+    {
+      label: 'Söndag',
+      hours: formatTimeRange(sunday.openTime, sunday.closeTime)
+    }
+  ]
+})
+
+let timeUpdateInterval: ReturnType<typeof setInterval> | undefined
 
 onMounted(() => {
-  checkIfOpen()
-  // Update every minute
-  setInterval(checkIfOpen, 60000)
+  // Start the time updater when component mounts
+  timeUpdateInterval = startTimeUpdater()
+})
+
+onUnmounted(() => {
+  // Clean up the interval when component unmounts
+  if (timeUpdateInterval) {
+    clearInterval(timeUpdateInterval)
+  }
 })
 </script>
 
