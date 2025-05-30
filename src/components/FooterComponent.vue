@@ -121,19 +121,18 @@ import { useOpeningHoursStore } from '../stores/openingHoursStore'
 
 const openingHoursStore = useOpeningHoursStore()
 
-// Use storeToRefs to maintain reactivity for state and getters
-const { weeklyHours, openingStatus } = storeToRefs(openingHoursStore)
+// Use storeToRefs only for reactive computed properties
+const { openingStatus } = storeToRefs(openingHoursStore)
 
-// Actions can be destructured normally since they don't need reactivity
-const { startTimeUpdater, formatTimeRange } = openingHoursStore
+// Static data and methods can be destructured normally
+const { weeklyHours, formatTimeRange } = openingHoursStore
 
-const email = ref('')
 const currentYear = new Date().getFullYear()
 const showBackToTop = ref(false)
 
 // Group hours for display
 const groupedHours = computed(() => {
-  const hours = weeklyHours.value
+  const hours = weeklyHours
   const mondayThursday = hours.slice(0, 4) // Monday-Thursday
   const fridaySaturday = hours.slice(4, 6) // Friday-Saturday
   const sunday = hours[6] // Sunday
@@ -154,13 +153,6 @@ const groupedHours = computed(() => {
   ]
 })
 
-const subscribeNewsletter = () => {
-  if (email.value) {
-    alert(`Tack för din prenumeration, ${email.value}! Vi skickar vårt nästa nyhetsbrev inom kort.`)
-    email.value = ''
-  }
-}
-
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
@@ -172,21 +164,11 @@ const handleScroll = () => {
   showBackToTop.value = window.scrollY > 300
 }
 
-let timeUpdateInterval: ReturnType<typeof setInterval> | undefined
-
 onMounted(() => {
-  // Start the time updater when component mounts
-  timeUpdateInterval = startTimeUpdater()
-
   window.addEventListener('scroll', handleScroll)
 })
 
 onUnmounted(() => {
-  // Clean up the interval when component unmounts
-  if (timeUpdateInterval) {
-    clearInterval(timeUpdateInterval)
-  }
-
   window.removeEventListener('scroll', handleScroll)
 })
 </script>

@@ -53,21 +53,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useOpeningHoursStore } from '../stores/openingHoursStore'
 
 const openingHoursStore = useOpeningHoursStore()
 
-// Use storeToRefs to maintain reactivity for state and getters
-const { weeklyHours, openingStatus } = storeToRefs(openingHoursStore)
+// Use storeToRefs only for reactive computed properties
+const { openingStatus } = storeToRefs(openingHoursStore)
 
-// Actions can be destructured normally since they don't need reactivity
-const { startTimeUpdater, formatTimeRange } = openingHoursStore
+// Static data and methods can be destructured normally
+const { weeklyHours, formatTimeRange } = openingHoursStore
 
 // Group hours for display
 const groupedHours = computed(() => {
-  const hours = weeklyHours.value
+  const hours = weeklyHours
   const mondayThursday = hours.slice(0, 4) // Monday-Thursday
   const fridaySaturday = hours.slice(4, 6) // Friday-Saturday
   const sunday = hours[6] // Sunday
@@ -86,20 +86,6 @@ const groupedHours = computed(() => {
       hours: formatTimeRange(sunday.openTime, sunday.closeTime)
     }
   ]
-})
-
-let timeUpdateInterval: ReturnType<typeof setInterval> | undefined
-
-onMounted(() => {
-  // Start the time updater when component mounts
-  timeUpdateInterval = startTimeUpdater()
-})
-
-onUnmounted(() => {
-  // Clean up the interval when component unmounts
-  if (timeUpdateInterval) {
-    clearInterval(timeUpdateInterval)
-  }
 })
 </script>
 

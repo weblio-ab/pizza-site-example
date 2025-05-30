@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { defineStore } from 'pinia'
 
 // Types for opening hours
@@ -24,11 +24,8 @@ export const useOpeningHoursStore = defineStore('openingHours', () => {
     return date
   }
 
-  // State
-  const currentTime = ref(new Date())
-
-  // Opening hours data
-  const weeklyHours = ref<DayHours[]>([
+  // Opening hours data (static)
+  const weeklyHours: DayHours[] = [
     { day: 'Måndag', dayOfWeek: 1, openTime: createTimeForToday(11, 0), closeTime: createTimeForToday(22, 0), isWeekend: false },
     { day: 'Tisdag', dayOfWeek: 2, openTime: createTimeForToday(11, 0), closeTime: createTimeForToday(22, 0), isWeekend: false },
     { day: 'Onsdag', dayOfWeek: 3, openTime: createTimeForToday(11, 0), closeTime: createTimeForToday(22, 0), isWeekend: false },
@@ -36,21 +33,24 @@ export const useOpeningHoursStore = defineStore('openingHours', () => {
     { day: 'Fredag', dayOfWeek: 5, openTime: createTimeForToday(11, 0), closeTime: createTimeForToday(23, 0), isWeekend: true },
     { day: 'Lördag', dayOfWeek: 6, openTime: createTimeForToday(11, 0), closeTime: createTimeForToday(23, 0), isWeekend: true },
     { day: 'Söndag', dayOfWeek: 0, openTime: createTimeForToday(12, 0), closeTime: createTimeForToday(21, 0), isWeekend: true }
-  ])
+  ]
 
-  // Getters (computed)
-  const todayHours = computed(() => {
-    const today = currentTime.value.getDay()
-    return weeklyHours.value.find(day => day.dayOfWeek === today)
-  })
+  // Get current time (fresh on each access)
+  const getCurrentTime = () => new Date()
 
+  // Get today's hours
+  const getTodayHours = () => {
+    const today = getCurrentTime().getDay()
+    return weeklyHours.find(day => day.dayOfWeek === today)
+  }
+
+  // Check if currently open
   const isCurrentlyOpen = computed(() => {
-    const now = currentTime.value
-    const today = todayHours.value
+    const now = getCurrentTime()
+    const today = getTodayHours()
 
     if (!today) return false
 
-    // Compare current time with opening hours using time values
     const currentTimeMs = now.getHours() * 60 + now.getMinutes()
     const openTimeMs = today.openTime.getHours() * 60 + today.openTime.getMinutes()
     const closeTimeMs = today.closeTime.getHours() * 60 + today.closeTime.getMinutes()
@@ -58,63 +58,48 @@ export const useOpeningHoursStore = defineStore('openingHours', () => {
     return currentTimeMs >= openTimeMs && currentTimeMs <= closeTimeMs
   })
 
+  // Get opening status with messages
   const openingStatus = computed((): OpeningStatus => {
-    const now = currentTime.value
+    const now = getCurrentTime()
     const currentDay = now.getDay()
     const isOpen = isCurrentlyOpen.value
-    const today = todayHours.value
+    const today = getTodayHours()
 
     const statusText = isOpen ? 'Öppet nu' : 'Stängt nu'
     let nextStatusMessage = ''
 
     if (isOpen && today) {
-      // Restaurant is open, show when it closes
       const closeTime = formatTime(today.closeTime)
       nextStatusMessage = `Stänger ${closeTime}`
-    } else {
-      // Restaurant is closed, show when it opens next
-      if (today) {
-        // Check if restaurant will open later today
-        const currentTimeMs = now.getHours() * 60 + now.getMinutes()
-        const openTimeMs = today.openTime.getHours() * 60 + today.openTime.getMinutes()
+    } else if (today) {
+      const currentTimeMs = now.getHours() * 60 + now.getMinutes()
+      const openTimeMs = today.openTime.getHours() * 60 + today.openTime.getMinutes()
 
-        if (currentTimeMs < openTimeMs) {
-          // Restaurant will open later today
-          const openTime = formatTime(today.openTime)
-          nextStatusMessage = `Öppnar idag ${openTime}`
+      if (currentTimeMs < openTimeMs) {
+        const openTime = formatTime(today.openTime)
+        nextStatusMessage = `Öppnar idag ${openTime}`
+      } else {
+        // Restaurant has closed for the day
+        if (currentDay === 0) { // Sunday
+          const mondayHours = weeklyHours.find(day => day.dayOfWeek === 1)
+          if (mondayHours) {
+            const openTime = formatTime(mondayHours.openTime)
+            nextStatusMessage = `Öppnar måndag ${openTime}`
+          }
         } else {
-          // Restaurant has closed for the day, show tomorrow
-          if (currentDay === 0) { // Sunday
-            const mondayHours = weeklyHours.value.find(day => day.dayOfWeek === 1)
-            if (mondayHours) {
-              const openTime = formatTime(mondayHours.openTime)
-              nextStatusMessage = `Öppnar måndag ${openTime}`
-            }
-          } else {
-            // Find tomorrow's hours or next day
-            const tomorrow = currentDay === 6 ? 0 : currentDay + 1
-            const tomorrowHours = weeklyHours.value.find(day => day.dayOfWeek === tomorrow)
-            if (tomorrowHours) {
-              const openTime = formatTime(tomorrowHours.openTime)
-              const dayName = tomorrow === 0 ? 'söndag' : 'imorgon'
-              nextStatusMessage = `Öppnar ${dayName} ${openTime}`
-            }
+          const tomorrow = currentDay === 6 ? 0 : currentDay + 1
+          const tomorrowHours = weeklyHours.find(day => day.dayOfWeek === tomorrow)
+          if (tomorrowHours) {
+            const openTime = formatTime(tomorrowHours.openTime)
+            const dayName = tomorrow === 0 ? 'söndag' : 'imorgon'
+            nextStatusMessage = `Öppnar ${dayName} ${openTime}`
           }
         }
       }
     }
 
-    return {
-      isOpen,
-      statusText,
-      nextStatusMessage
-    }
+    return { isOpen, statusText, nextStatusMessage }
   })
-
-  // Helper function to check if a specific day is today
-  const isToday = (dayOfWeek: number): boolean => {
-    return currentTime.value.getDay() === dayOfWeek
-  }
 
   // Format time from Date object to HH:MM string
   const formatTime = (date: Date): string => {
@@ -125,37 +110,26 @@ export const useOpeningHoursStore = defineStore('openingHours', () => {
     })
   }
 
-  // Actions
-  const updateCurrentTime = () => {
-    currentTime.value = new Date()
-  }
-
-  const startTimeUpdater = (): ReturnType<typeof setInterval> => {
-    // Update every minute
-    const interval = setInterval(updateCurrentTime, 60000)
-    return interval
-  }
-
   // Format time range for display
   const formatTimeRange = (openTime: Date, closeTime: Date): string => {
     return `${formatTime(openTime)} - ${formatTime(closeTime)}`
   }
 
+  // Helper function to check if a specific day is today
+  const isToday = (dayOfWeek: number): boolean => {
+    return getCurrentTime().getDay() === dayOfWeek
+  }
+
   return {
-    // State
-    currentTime,
+    // Data
     weeklyHours,
 
-    // Getters
-    todayHours,
+    // Computed
     isCurrentlyOpen,
     openingStatus,
 
-    // Actions
-    updateCurrentTime,
-    startTimeUpdater,
+    // Methods
     isToday,
-    formatTime,
     formatTimeRange
   }
 })

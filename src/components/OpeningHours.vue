@@ -36,31 +36,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useOpeningHoursStore } from '../stores/openingHoursStore'
 
 const openingHoursStore = useOpeningHoursStore()
 
-// Use storeToRefs to maintain reactivity for state and getters
-const { weeklyHours, openingStatus } = storeToRefs(openingHoursStore)
+// Use storeToRefs only for reactive computed properties
+const { openingStatus } = storeToRefs(openingHoursStore)
 
-// Actions can be destructured normally since they don't need reactivity
-const { isToday, formatTimeRange, startTimeUpdater } = openingHoursStore
-
-let timeUpdateInterval: ReturnType<typeof setInterval> | undefined
-
-onMounted(() => {
-  // Start the time updater when component mounts
-  timeUpdateInterval = startTimeUpdater()
-})
-
-onUnmounted(() => {
-  // Clean up the interval when component unmounts
-  if (timeUpdateInterval) {
-    clearInterval(timeUpdateInterval)
-  }
-})
+// Static data and methods can be destructured normally
+const { weeklyHours, isToday, formatTimeRange } = openingHoursStore
 </script>
 
 <style scoped>
